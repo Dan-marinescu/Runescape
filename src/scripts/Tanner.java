@@ -10,7 +10,6 @@ import z.Con;
 import javax.swing.*;
 import javax.swing.plaf.synth.SynthStyle;
 import java.awt.*;
-import java.util.Random;
 import java.util.concurrent.Callable;
 
 @Script.Manifest(
@@ -27,7 +26,7 @@ public class Tanner extends PollingScript<ClientContext> implements PaintListene
     final int COINS_ID = 995;
     int tanIndex;
     int tanned =0;
-    int x300 =300;
+    int hopMilestone = 300;
     public static final Tile[] pathToTan = {new Tile(3269, 3167, 0), new Tile(3273, 3167, 0), new Tile(3275, 3171, 0), new Tile(3277, 3175, 0), new Tile(3277, 3179, 0), new Tile(3280, 3183, 0), new Tile(3280, 3187, 0), new Tile(3279, 3191, 0), new Tile(3275, 3191, 0)};
     public static final Tile[] pathToBank = {new Tile(3315, 3233, 0), new Tile(3311, 3234, 0), new Tile(3307, 3234, 0), new Tile(3303, 3231, 0), new Tile(3300, 3228, 0), new Tile(3297, 3225, 0), new Tile(3297, 3221, 0), new Tile(3294, 3218, 0), new Tile(3291, 3214, 0), new Tile(3289, 3210, 0), new Tile(3286, 3207, 0), new Tile(3283, 3204, 0), new Tile(3282, 3200, 0), new Tile(3282, 3196, 0), new Tile(3282, 3192, 0), new Tile(3281, 3188, 0), new Tile(3281, 3184, 0), new Tile(3281, 3180, 0), new Tile(3280, 3176, 0), new Tile(3277, 3173, 0), new Tile(3275, 3169, 0), new Tile(3271, 3167, 0)};
 
@@ -123,14 +122,12 @@ public class Tanner extends PollingScript<ClientContext> implements PaintListene
                     if(ctx.bank.select().id(LEATHER_ID).count(true)==0 && ctx.bank.opened()){
                        // geFlag =true;
                         ctx.controller.stop();
-                        System.out.println("here?");
-
                     }
 
                     ctx.bank.withdraw(LEATHER_ID,27);
                     ctx.bank.close();
-                    if(tanned >x300){
-                        x300 +=300;
+                    if(tanned > hopMilestone){
+                        hopMilestone += Random.nextInt(250, 350);
                         logoutIcon.click();
                         if(ctx.widgets.component(182,7).valid())
                             worldSwitcher.click();
@@ -172,7 +169,6 @@ public class Tanner extends PollingScript<ClientContext> implements PaintListene
                  Component tan = ctx.widgets.component(324,tanIndex);
                  tan.interact(false,"Tan All");
                 }
-
                 Condition.wait(new Callable<Boolean>() {
                     @Override
                     public Boolean call() throws Exception {
@@ -182,7 +178,6 @@ public class Tanner extends PollingScript<ClientContext> implements PaintListene
 
                 if(hides != ctx.inventory.select().id(LEATHER_ID).count())
                     tanned += ctx.inventory.select().id(TANNED_LEATHER_ID).count();
-
                 break;
         }
     }
@@ -194,7 +189,6 @@ public class Tanner extends PollingScript<ClientContext> implements PaintListene
             goToGe();
             ctx.controller.stop();
         }
-
         if(atArea(shopTile)&&ctx.inventory.select().id(LEATHER_ID).count()>0)
             return State.TAN;
         else if(ctx.inventory.select().id(LEATHER_ID).count()>0)
@@ -213,6 +207,8 @@ public class Tanner extends PollingScript<ClientContext> implements PaintListene
 
     public boolean atArea(Tile t) { return (ctx.movement.distance(t) >= 1 && ctx.movement.distance(t) <= 5); }
 
+
+    //TODO
     public void goToGe(){
         if(ctx.bank.inViewport()) {
             if (ctx.bank.open()) {
@@ -287,11 +283,6 @@ public class Tanner extends PollingScript<ClientContext> implements PaintListene
             return -1;
         }
     }
-
-
-
-
-
 
     @Override
     public void repaint(Graphics graphics){
