@@ -17,7 +17,7 @@ public class Libary extends PollingScript<ClientContext>{
     public static final Tile[] pathToWine2 = {new Tile(3027, 3844, 0), new Tile(3025, 3840, 0), new Tile(3021, 3839, 0), new Tile(3017, 3837, 0), new Tile(3014, 3834, 0), new Tile(3010, 3834, 0), new Tile(3006, 3834, 0), new Tile(3002, 3834, 0), new Tile(2998, 3831, 0), new Tile(2994, 3829, 0), new Tile(2990, 3829, 0), new Tile(2986, 3829, 0), new Tile(2982, 3829, 0), new Tile(2978, 3829, 0), new Tile(2974, 3829, 0), new Tile(2970, 3827, 0), new Tile(2967, 3824, 0), new Tile(2963, 3824, 0), new Tile(2959, 3822, 0), new Tile(2955, 3821, 0), new Tile(2951, 3818, 0)};
     final Component magicIcon = ctx.widgets.component(161,58);
     final Component armourIcon = ctx.widgets.component(161,56);
-    final Component inventoryIcon = ctx.widgets.component(161,55);
+    final Component inventoryIcon = ctx.widgets.component(161,56);
     Component logoutIcon = ctx.widgets.component(161,46);
     final Component teleGrab = ctx.widgets.component(218,24);
     final Component worldSwitcher = ctx.widgets.component(182,7);

@@ -6,6 +6,7 @@ import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
 
 
+import javax.swing.*;
 import javax.swing.plaf.synth.SynthStyle;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -34,12 +35,13 @@ public class Fighter extends PollingScript<ClientContext> {
     final int STR_2_ID = 159;
     final int STR_1_ID = 161;
     final int DWARVEN_ROCK_ID = 7510;
-    final int []monstersID ={2179,2170,2178,2177,2171};
+    final int [] monstersID ={2179,2170,2178,2177,2171};
     final int [] lootID={6529,2134,6523,6525,6568,10636,13443,6522,23652,6528,6524,21298,21301,21304};
     int i=0,n=0;
     boolean hopFlag =false;
     boolean bankFlag = false;
     boolean prayerFlag = true;
+    String input;
     java.util.Random randomNumber = new java.util.Random();
     Item emptyVial = ctx.inventory.select().id(EMPTY_VIAL_ID).poll();
     Item restore4 = ctx.inventory.select().id(RESTORE_4_ID).poll();
@@ -64,6 +66,7 @@ public class Fighter extends PollingScript<ClientContext> {
     Tile atLumb = new Tile(3221,3219,0);
 
     public void start(){
+        input = JOptionPane.showInputDialog("enter item name:");
 
     }
 

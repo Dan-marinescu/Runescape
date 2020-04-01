@@ -32,8 +32,10 @@ public class Woodcutting extends PollingScript<ClientContext> {
     final boolean [] randomBoolean = {true,false};
 
     Random random = new Random();
+    public static Tile [] chosenPath;
+    public static final Tile[] pathFromOaks = {new Tile(3285, 3427, 0), new Tile(3281, 3427, 0), new Tile(3277, 3427, 0), new Tile(3273, 3427, 0), new Tile(3269, 3427, 0), new Tile(3265, 3427, 0), new Tile(3261, 3427, 0), new Tile(3257, 3428, 0), new Tile(3254, 3425, 0)};
 
-    public static final Tile[] pathToBank = {new Tile(3282, 3450, 0), new Tile(3282, 3446, 0), new Tile(3280, 3442, 0), new Tile(3277, 3439, 0), new Tile(3275, 3435, 0), new Tile(3274, 3431, 0), new Tile(3270, 3429, 0), new Tile(3266, 3429, 0), new Tile(3262, 3429, 0), new Tile(3258, 3429, 0), new Tile(3254, 3426, 0), new Tile(3254, 3422, 0)};
+    public static final Tile[] pathFromNormalBank = {new Tile(3282, 3450, 0), new Tile(3282, 3446, 0), new Tile(3280, 3442, 0), new Tile(3277, 3439, 0), new Tile(3275, 3435, 0), new Tile(3274, 3431, 0), new Tile(3270, 3429, 0), new Tile(3266, 3429, 0), new Tile(3262, 3429, 0), new Tile(3258, 3429, 0), new Tile(3254, 3426, 0), new Tile(3254, 3422, 0)};
     Tile treeLocation =Tile.NIL;
 
     GameObject treeObj;
@@ -44,10 +46,14 @@ public class Woodcutting extends PollingScript<ClientContext> {
         startingXp = ctx.skills.experience(Constants.SKILLS_WOODCUTTING);
         String typeOfTree[] = {"Normal","Oak"};
         String userItemTypeChoice =""+ JOptionPane.showInputDialog(null,"what type of item?","Fleching", JOptionPane.PLAIN_MESSAGE,null,typeOfTree,typeOfTree[0]);
-        if(userItemTypeChoice.equals("Normal"))
+        if(userItemTypeChoice.equals("Normal")) {
             CHOSEN_TREE_ID = NORMAL_TREE_ID;
-        else
+            chosenPath = pathFromNormalBank;
+        }
+        else {
             CHOSEN_TREE_ID = OAK_TREE_ID;
+            chosenPath = pathFromOaks;
+        }
     }
 
     @Override
@@ -83,9 +89,9 @@ public class Woodcutting extends PollingScript<ClientContext> {
                 System.out.println("state is:"+state);
                 if(ctx.inventory.isFull()){
                     if(!ctx.players.local().inMotion()||ctx.movement.destination().equals(Tile.NIL)||ctx.movement.destination().distanceTo(ctx.players.local())<5)
-                        walk.walkPath(pathToBank);
+                        walk.walkPath(chosenPath);
                 } else {
-                    walk.walkPathReverse(pathToBank);
+                    walk.walkPathReverse(chosenPath);
                 }
                 break;
 
@@ -117,12 +123,12 @@ public class Woodcutting extends PollingScript<ClientContext> {
                  ctx.movement.running(true);
                  randomRun = random.nextInt(5)+8;
             }
-            System.out.println("total xp gained:"+(ctx.skills.experience(Constants.SKILLS_WOODCUTTING)-startingXp) +" "+(pathToBank[0].distanceTo(ctx.players.local())));
+            System.out.println("total xp gained:"+(ctx.skills.experience(Constants.SKILLS_WOODCUTTING)-startingXp) +" "+(chosenPath[0].distanceTo(ctx.players.local())));
             if (ctx.inventory.isFull() && ctx.bank.nearest().tile().distanceTo(ctx.players.local())<6)
                 return State.BANK;
-            else if((!ctx.objects.select().at(treeLocation).id(CHOSEN_TREE_ID).poll().equals(ctx.objects.nil())||ctx.players.local().animation() == -1) &&( !ctx.inventory.isFull() && (pathToBank[0].distanceTo(ctx.players.local())<20)))
+            else if((!ctx.objects.select().at(treeLocation).id(CHOSEN_TREE_ID).poll().equals(ctx.objects.nil())||ctx.players.local().animation() == -1) &&( !ctx.inventory.isFull() && (chosenPath[0].distanceTo(ctx.players.local())<20)))
                 return State.CHOP;
-            else if(ctx.inventory.isFull() || (!ctx.inventory.isFull() && (pathToBank[0].distanceTo(ctx.players.local())>8)))
+            else if(ctx.inventory.isFull() || (!ctx.inventory.isFull() && (chosenPath[0].distanceTo(ctx.players.local())>8)))
                 return State.WALK;
             else
                 return null;

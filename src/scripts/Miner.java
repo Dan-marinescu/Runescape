@@ -7,6 +7,7 @@ import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Component;
 
 
+import javax.swing.*;
 import javax.swing.plaf.synth.SynthStyle;
 import java.awt.*;
 import java.util.Random;
@@ -18,47 +19,69 @@ import java.util.concurrent.Callable;
         properties = "client = 4;"
 )
 public class Miner extends PollingScript<ClientContext> implements PaintListener{
-    final int [] rocksID = {11365,11364,11361,11360};
-    final int [] uniques = {1621,1623,23442,1619,20364,20358};
-    final int COOPER_ORE_ID = 436;
-    final int []TIN_ORE_ID = {440,438};
+    final int [] uniques = {1621,1623,23442,1619,20364,20358,1617};
+
+    int [] ROCK_ID = new int [2];
+
     int min =0;
-    int miningXpInit = ctx.skills.experience(Constants.SKILLS_MINING);
-    int x5=0;
     int i=0;
     int totalRocks=0;
-    int invRocks =0;
     int worldsHopped =0;
     int currentWorld =-1;
+    int startXp;
+    int ORE_ID;
+    int randomRun =10;
+
     Tile rockLocation =Tile.NIL;
 
+    Random random = new Random();
+
     boolean hopFlag = false;
-    Item cooper = ctx.inventory.select().id(COOPER_ORE_ID).poll();
-    Item tin = ctx.inventory.select().id(TIN_ORE_ID).poll();
-    final Component inv = ctx.widgets.component(161,54);
-    GameObject rocks = ctx.objects.select().id(rocksID).poll();
 
-    Tile outSide = new Tile(2608,3115,0);
-    Tile middle;
+    final Component inv = ctx.widgets.component(161,56);
+
+    GameObject rocks = null ;
+
     java.util.Random randomNumber = new java.util.Random();
-    int startXp;
-
 
     public void start(){
         startXp = ctx.skills.experience(Constants.SKILLS_MINING);
+        String typeOfItem[] = {"Tin","Cooper","Iron","Coal"};
+        String userItemTypeChoice =""+ JOptionPane.showInputDialog(null,"what type of ores?","Mining", JOptionPane.PLAIN_MESSAGE,null,typeOfItem,typeOfItem[0]);
+        if(userItemTypeChoice.equals("Tin")) {
+            ORE_ID = 438;
+            ROCK_ID[0] = 11360;
+            ROCK_ID[1] = 11361;
+        }
+        else if(userItemTypeChoice.equals("Cooper")) {
+            ORE_ID = 436;
+            ROCK_ID[0] = 11161;
+            ROCK_ID[1] = 10943;
+        }
+        else if(userItemTypeChoice.equals("Iron")) {
+            ORE_ID = 440;
+            ROCK_ID[0] = 11161;
+            ROCK_ID[1] = 10943;
+        }
+        else {
+            ORE_ID = 453;
+            ROCK_ID [0] = 11366;
+            ROCK_ID [1] = 11367;
+        }
+        rocks = ctx.objects.select().id(ROCK_ID).poll();
     }
 
     @Override
     public void poll() {
         final State state = getState();
         if(state ==null) {
-
             return;
         }
 
         switch(state){
             case MINE:
-                rocks = ctx.objects.select().id(rocksID).nearest().poll();
+                System.out.println("state is:"+state);
+                rocks = ctx.objects.select().id(ROCK_ID).nearest().poll();
                 rockLocation = rocks.tile();
                 rocks.interact(true,"Mine");
                 Condition.wait(new Callable<Boolean>() {
@@ -67,8 +90,8 @@ public class Miner extends PollingScript<ClientContext> implements PaintListener
                         return ctx.players.local().animation() != -1;
                     }
                 },200,10);
-                if(ctx.inventory.select().id(TIN_ORE_ID).count()>min){
-                    min=ctx.inventory.select().id(TIN_ORE_ID).count();
+                if(ctx.inventory.select().id(ORE_ID).count()>min){
+                    min=ctx.inventory.select().id(ORE_ID).count();
                     totalRocks++;
                 }
                 break;
@@ -77,16 +100,20 @@ public class Miner extends PollingScript<ClientContext> implements PaintListener
                 System.out.println("state is:"+state);
                 min=0;
                 inv.click();
-                for(Item t:ctx.inventory.select().id(TIN_ORE_ID)){
-                    final int startingTins = ctx.inventory.select().id(TIN_ORE_ID).count();
-                    ctx.inventory.drop(t,true);
+                for(Item t:ctx.inventory.select().id(ORE_ID)){
+                    final int startingTins = ctx.inventory.select().id(ORE_ID).count();
+                    if(ctx.inventory.shiftDroppingEnabled())
+                        ctx.inventory.drop(t,true);
+                    else
+                        ctx.inventory.drop(t,false);
                     Condition.wait(new Callable<Boolean>() {
                         @Override
                         public Boolean call() throws Exception {
-                            return ctx.inventory.select().id(TIN_ORE_ID).count()!= startingTins;
+                            return ctx.inventory.select().id(ORE_ID).count()!= startingTins;
                         }
                     },25,20);
                 }
+
                 for (Item u:ctx.inventory.select().id(uniques))
                 {
                     final int startingUniques = ctx.inventory.select().id(uniques).count();
@@ -111,34 +138,27 @@ public class Miner extends PollingScript<ClientContext> implements PaintListener
                     hopFlag=false;
                     worldsHopped++;
                     inv.click();
-
                 break;
         }
     }
 
     private State getState() {
-        if((ctx.skills.experience(Constants.SKILLS_MINING)-miningXpInit)>x5){
-            x5 +=2500;
-            System.out.println("milestone of x5:"+x5 +" hopped:"+worldsHopped);
-           // hopFlag =true;
-            if (!ctx.movement.running() && ctx.movement.energyLevel() > 20)
-                ctx.movement.running(true);
+        if (!ctx.movement.running() && ctx.movement.energyLevel() > randomRun) {
+            ctx.movement.running(true);
+            randomRun = random.nextInt(5)+8;
         }
-        //System.out.println("hopflag is:"+hopFlag+" peoples:"+ctx.players.select().within(28).size());
-        if(hopFlag||ctx.players.select().within(28).size()>4)
+       /* if(hopFlag||ctx.players.select().within(28).size()>4)
         {
             System.out.println("hopflag is:"+hopFlag+" peoples:"+ctx.players.select().within(28).size());
             return State.HOP;
-        }
-        else if(ctx.objects.select().at(rockLocation).id(rocksID).poll().equals(ctx.objects.nil())||ctx.players.local().animation() ==-1&&ctx.inventory.select().count()<=27)
+        }*/
+        if(ctx.objects.select().at(rockLocation).id(ROCK_ID).poll().equals(ctx.objects.nil())||ctx.players.local().animation() == -1 && !ctx.inventory.isFull())
             return State.MINE;
-        else if(ctx.inventory.select().count()>27)
+        else if(ctx.inventory.isFull())
             return State.DROP;
         else
             return null;
-
     }
-
 
     private enum State{
         MINE,DROP,HOP
@@ -163,8 +183,6 @@ public class Miner extends PollingScript<ClientContext> implements PaintListener
         g.drawString("ores P/H:"+ (int)(totalRocks*(3600000D/milliseconds)),20,60);
         g.drawString("ores mined:"+ totalRocks,20,80);
         g.drawString("xp P/H:"+String.format("%.2f",xpGained*(3600000D/milliseconds)),20,100);
-
-
 
     }
 
