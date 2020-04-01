@@ -21,7 +21,7 @@ import java.util.concurrent.Callable;
 public class Miner extends PollingScript<ClientContext> implements PaintListener{
     final int [] uniques = {1621,1623,23442,1619,20364,20358,1617};
 
-    int [] ROCK_ID = new int [2];
+    int [] ROCK_ID = new int [3];
 
     int min =0;
     int i=0;
@@ -52,6 +52,7 @@ public class Miner extends PollingScript<ClientContext> implements PaintListener
             ORE_ID = 438;
             ROCK_ID[0] = 11360;
             ROCK_ID[1] = 11361;
+            ROCK_ID[2] = 10080;
         }
         else if(userItemTypeChoice.equals("Cooper")) {
             ORE_ID = 436;
@@ -60,8 +61,8 @@ public class Miner extends PollingScript<ClientContext> implements PaintListener
         }
         else if(userItemTypeChoice.equals("Iron")) {
             ORE_ID = 440;
-            ROCK_ID[0] = 11161;
-            ROCK_ID[1] = 10943;
+            ROCK_ID[0] = 11364;
+            ROCK_ID[1] = 11365;
         }
         else {
             ORE_ID = 453;

@@ -6,6 +6,7 @@ import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
 
 
+import javax.swing.*;
 import javax.swing.plaf.synth.SynthStyle;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -16,20 +17,36 @@ import java.util.concurrent.Callable;
         properties = "client = 4;"
 )
 public class Fishing extends PollingScript<ClientContext> {
-    final int [] fishSpotID = {1527,1530,};
+    final int [] fishSpotID = {1527,1530,1528};
     final int [] uniques = {1621,1623,23442,1619};
-    final int [] fishesID = {317,321,335,331,339,341};
-    final int fishes = 317;
-    int fishingXpInit = ctx.skills.experience(Constants.SKILLS_FISHING);
-    int x5=0;
+    final int [] fishesID = {317,321,335,331,339,341,327,345,349};
+
     int totalfishes=0;
-    int gainedRock =-1;
-    int fish =0;
     int fishesAtm =0;
+    int startingXp;
+    int randomRun = 5 ;
     Tile fishlocation =Tile.NIL;
+
+    String action = "";
+
     Npc fishingSpot = ctx.npcs.select().id(fishSpotID).poll();
-    java.util.Random randomNumber = new java.util.Random();
+
+    Random random = new Random();
+
+
+
     public void start(){
+        startingXp = ctx.skills.experience(Constants.SKILLS_FISHING);
+        String typeOfAction[] = {"Net", "Bait", "Lure"};
+        String userItemTypeChoice =""+ JOptionPane.showInputDialog(null,"type of action?","Fishing", JOptionPane.PLAIN_MESSAGE,null,typeOfAction,typeOfAction[0]);
+        if(userItemTypeChoice.equals("Net")) {
+            action = "Net";
+        }
+        else if(userItemTypeChoice.equals("Bait")){
+            action = "Bait";
+        }else{
+            action = "Lure";
+        }
 
     }
 
@@ -47,7 +64,7 @@ public class Fishing extends PollingScript<ClientContext> {
                     fishingSpot = ctx.npcs.select().id(fishSpotID).nearest().poll();
                     fishlocation = fishingSpot.tile();
 
-                    fishingSpot.interact(true,"Net");
+                    fishingSpot.interact(false,action);
                     Condition.wait(new Callable<Boolean>() {
                         @Override
                         public Boolean call() throws Exception {
@@ -64,7 +81,7 @@ public class Fishing extends PollingScript<ClientContext> {
             case DROP:
                 fishesAtm =ctx.inventory.select().id(fishesID).count();
                 for(Item t:ctx.inventory.select().id(fishesID)){
-                    final int startingFish = ctx.inventory.select().id(fishes).count();
+                    final int startingFish = ctx.inventory.select().id(fishesID).count();
                     ctx.inventory.drop(t,true);
                     Condition.wait(new Callable<Boolean>() {
                         @Override
@@ -93,15 +110,10 @@ public class Fishing extends PollingScript<ClientContext> {
     }
 
     private State getState() {
-        if((ctx.skills.experience(Constants.SKILLS_MINING)-fishingXpInit)>x5){
-            x5 +=500;
-            System.out.println("milestone of x5:"+x5);
-
-            if (!ctx.movement.running() && ctx.movement.energyLevel() > 20)
-                ctx.movement.running(true);
+        if (!ctx.movement.running() && ctx.movement.energyLevel() > randomRun) {
+            ctx.movement.running(true);
+            randomRun = random.nextInt(5)+8;
         }
-
-        //System.out.println(ctx.objects.select().at(fishlocation).id(fishesID).poll().equals(ctx.objects.nil())+" m "+ctx.players.local().animation()+" x "+  ctx.inventory.select().count());
         if(ctx.npcs.select().at(fishlocation).id(fishSpotID).poll().equals(ctx.npcs.nil())||(ctx.players.local().animation() ==-1&&ctx.inventory.select().count()<=27))
             return State.FISH;
         else if(ctx.inventory.select().count()>27)

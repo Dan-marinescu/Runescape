@@ -36,7 +36,7 @@ public class FaladorMining extends PollingScript<ClientContext> implements Paint
 
     Tile rockLocation =Tile.NIL;
     Tile bankTile = new Tile(3013,3356,0);
-    Tile MineTile = new Tile(3022,9739,0);
+    Tile mineTile = new Tile(3027,9739,0);
 
 
     Random random = new Random();
@@ -65,6 +65,10 @@ public class FaladorMining extends PollingScript<ClientContext> implements Paint
                     ctx.camera.turnTo(rocks);
                 rocks = ctx.objects.select().id(ROCK_ID).nearest().poll();
                 rockLocation = rocks.tile();
+                if(rocks.tile().y()<9728) {
+                    ctx.movement.step(mineTile);
+                    break;
+                }
                 rocks.interact(true,"Mine");
                 Condition.wait(new Callable<Boolean>() {
                     @Override
@@ -90,6 +94,7 @@ public class FaladorMining extends PollingScript<ClientContext> implements Paint
                         }, 500, 100);
                     }
                     ctx.bank.depositAllExcept(PICKAXES_ID);
+                    min = 0;
                     ctx.bank.close();
                 }
                 else{
