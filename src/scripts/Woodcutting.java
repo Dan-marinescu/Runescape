@@ -27,7 +27,7 @@ public class Woodcutting extends PollingScript<ClientContext> {
     final int [] NORMAL_TREE_ID = {1276,1278};
     final int [] OAK_TREE_ID = {10820};
     int [] CHOSEN_TREE_ID;
-    final int [] AXES_ID = {1349,1353,1355,1361,1357};
+    final int [] AXES_ID = {1349,1353,1355,1361,1357,1359};
 
     final boolean [] randomBoolean = {true,false};
 
