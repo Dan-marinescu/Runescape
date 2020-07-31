@@ -30,7 +30,7 @@ public class Tanner extends PollingScript<ClientContext> implements PaintListene
     public static final Tile[] pathToTan = {new Tile(3269, 3167, 0), new Tile(3273, 3167, 0), new Tile(3275, 3171, 0), new Tile(3277, 3175, 0), new Tile(3277, 3179, 0), new Tile(3280, 3183, 0), new Tile(3280, 3187, 0), new Tile(3279, 3191, 0), new Tile(3275, 3191, 0)};
     public static final Tile[] pathToBank = {new Tile(3315, 3233, 0), new Tile(3311, 3234, 0), new Tile(3307, 3234, 0), new Tile(3303, 3231, 0), new Tile(3300, 3228, 0), new Tile(3297, 3225, 0), new Tile(3297, 3221, 0), new Tile(3294, 3218, 0), new Tile(3291, 3214, 0), new Tile(3289, 3210, 0), new Tile(3286, 3207, 0), new Tile(3283, 3204, 0), new Tile(3282, 3200, 0), new Tile(3282, 3196, 0), new Tile(3282, 3192, 0), new Tile(3281, 3188, 0), new Tile(3281, 3184, 0), new Tile(3281, 3180, 0), new Tile(3280, 3176, 0), new Tile(3277, 3173, 0), new Tile(3275, 3169, 0), new Tile(3271, 3167, 0)};
 
-    private  GrandExchange ge = new GrandExchange(ctx);
+//    private  GrandExchange ge; = new GrandExchange(ctx);
     private final Walker walk = new Walker(ctx);
 
     final Component worldSwitcher = ctx.widgets.component(182,7);
@@ -185,10 +185,10 @@ public class Tanner extends PollingScript<ClientContext> implements PaintListene
     private State getState() {
         if (!ctx.movement.running() && ctx.movement.energyLevel() > org.powerbot.script.Random.nextInt(17, 35))
             ctx.movement.running(true);
-        if(geFlag){
-            goToGe();
-            ctx.controller.stop();
-        }
+//        if(geFlag){
+//            goToGe();
+//            ctx.controller.stop();
+//        }
         if(atArea(shopTile)&&ctx.inventory.select().id(LEATHER_ID).count()>0)
             return State.TAN;
         else if(ctx.inventory.select().id(LEATHER_ID).count()>0)
@@ -208,69 +208,67 @@ public class Tanner extends PollingScript<ClientContext> implements PaintListene
     public boolean atArea(Tile t) { return (ctx.movement.distance(t) >= 1 && ctx.movement.distance(t) <= 5); }
 
 
-    //TODO
-    public void goToGe(){
-        if(ctx.bank.inViewport()) {
-            if (ctx.bank.open()) {
-                Condition.wait(new Callable<Boolean>() {
-                    public Boolean call() throws Exception {
-                        System.out.println("waiting for bank open");
-                        return ctx.bank.opened();
-                    }
-                }, 500, 100);
-            }
-            ctx.bank.depositInventory();
-            System.out.println(itemId("dueling"));
-            ctx.bank.withdraw(itemId("dueling"),1);
-            ctx.bank.withdraw(itemId("wealth ("),1);
-            ctx.bank.withdrawModeNoted(true);
-            ctx.bank.withdraw(LEATHER_ID+1,ctx.bank.select().id(LEATHER_ID+1).count(true));
-            ctx.inventory.select().id(itemId("wealth (")).poll().interact(false,"Rub");
-            Condition.wait(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    return ctx.widgets.component(219,1,2).text().contains("Grand");
-                }
-            },100,20);
-            ctx.widgets.component(219,1,2).click();
-            Condition.wait(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    return atArea(GeTile);
-                }
-            },200,10);
-            ctx.movement.step(ctx.bank.nearest());
-            ctx.camera.turnTo(ctx.bank.nearest());
-            ge.sellItem(LEATHER_ID,1600);
-            ge.buyItemByPrice(userItemTypeChoice,tanned,1470);
-            ctx.inventory.select().id(itemId("dueling")).poll().interact(false,"Rub");
-            Condition.wait(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    return ctx.widgets.component(219,1,1).text().contains("Kharid");
-                }
-            },100,20);
-            ctx.widgets.component(219,1,1).click();
-            Condition.wait(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    return atArea(duelTile);
-                }
-            },200,10);
-            if(atArea(duelTile))
-            {
-                while(!atArea(bankTile)&&(!ctx.players.local().inMotion()||ctx.movement.destination().equals(Tile.NIL)||ctx.movement.destination().distanceTo(ctx.players.local())<5))
-                    walk.walkPath(pathToBank);
-            }
-
-
-        }else {
-            ctx.movement.step(ctx.bank.nearest());
-            ctx.camera.turnTo(ctx.bank.nearest());
-        }
-
-
-    }
+//    //TODO
+//    public void goToGe(){
+//        if(ctx.bank.inViewport()) {
+//            if (ctx.bank.open()) {
+//                Condition.wait(new Callable<Boolean>() {
+//                    public Boolean call() throws Exception {
+//                        System.out.println("waiting for bank open");
+//                        return ctx.bank.opened();
+//                    }
+//                }, 500, 100);
+//            }
+//            ctx.bank.depositInventory();
+//            System.out.println(itemId("dueling"));
+//            ctx.bank.withdraw(itemId("dueling"),1);
+//            ctx.bank.withdraw(itemId("wealth ("),1);
+//            ctx.bank.withdrawModeNoted(true);
+//            ctx.bank.withdraw(LEATHER_ID+1,ctx.bank.select().id(LEATHER_ID+1).count(true));
+//            ctx.inventory.select().id(itemId("wealth (")).poll().interact(false,"Rub");
+//            Condition.wait(new Callable<Boolean>() {
+//                @Override
+//                public Boolean call() throws Exception {
+//                    return ctx.widgets.component(219,1,2).text().contains("Grand");
+//                }
+//            },100,20);
+//            ctx.widgets.component(219,1,2).click();
+//            Condition.wait(new Callable<Boolean>() {
+//                @Override
+//                public Boolean call() throws Exception {
+//                    return atArea(GeTile);
+//                }
+//            },200,10);
+//            ctx.movement.step(ctx.bank.nearest());
+//            ctx.camera.turnTo(ctx.bank.nearest());
+//            ge.sellItem(LEATHER_ID,1600);
+//            ge.buyItemByPrice(userItemTypeChoice,tanned,1470);
+//            ctx.inventory.select().id(itemId("dueling")).poll().interact(false,"Rub");
+//            Condition.wait(new Callable<Boolean>() {
+//                @Override
+//                public Boolean call() throws Exception {
+//                    return ctx.widgets.component(219,1,1).text().contains("Kharid");
+//                }
+//            },100,20);
+//            ctx.widgets.component(219,1,1).click();
+//            Condition.wait(new Callable<Boolean>() {
+//                @Override
+//                public Boolean call() throws Exception {
+//                    return atArea(duelTile);
+//                }
+//            },200,10);
+//            if(atArea(duelTile))
+//            {
+//                while(!atArea(bankTile)&&(!ctx.players.local().inMotion()||ctx.movement.destination().equals(Tile.NIL)||ctx.movement.destination().distanceTo(ctx.players.local())<5))
+//                    walk.walkPath(pathToBank);
+//            }
+//
+//
+//        }else {
+//            ctx.movement.step(ctx.bank.nearest());
+//            ctx.camera.turnTo(ctx.bank.nearest());
+//        }
+//    }
 
     public int itemId(String  ringIds){
         if(!ctx.bank.opened())

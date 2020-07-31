@@ -123,6 +123,8 @@ public class Woodcutting extends PollingScript<ClientContext> {
                  ctx.movement.running(true);
                  randomRun = random.nextInt(5)+8;
             }
+            if(ctx.widgets.component(595,26).valid())
+                ctx.widgets.component(595,38).click();
             System.out.println("total xp gained:"+(ctx.skills.experience(Constants.SKILLS_WOODCUTTING)-startingXp) +" "+(chosenPath[0].distanceTo(ctx.players.local())));
             if (ctx.inventory.isFull() && ctx.bank.nearest().tile().distanceTo(ctx.players.local())<6)
                 return State.BANK;

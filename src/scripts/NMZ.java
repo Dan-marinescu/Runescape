@@ -16,11 +16,15 @@ import java.util.concurrent.Callable;
         properties = "client = 4;"
 )
 public class NMZ extends PollingScript<ClientContext> {
+    java.util.Random randomNumber = new java.util.Random();
+
+
+
     final int DWARVEN_ROCK_ID = 7510;
-    final int RESTORE_4_ID = 3024;
-    final int RESTORE_3_ID = 3026;
-    final int RESTORE_2_ID = 3028;
-    final int RESTORE_1_ID = 3030;
+    final int RESTORE_4_ID = 2434; //3024
+    final int RESTORE_3_ID = 139; //3026
+    final int RESTORE_2_ID = 141; //3028
+    final int RESTORE_1_ID = 143; //3030
     final int ABS_4_ID = 11734;
     final int ABS_3_ID = 11735;
     final int ABS_2_ID = 11736;
@@ -41,6 +45,10 @@ public class NMZ extends PollingScript<ClientContext> {
     final int ACTIVE_ZAPPER_ID = 30343;
     final int POWER_SURGE_ID = 26264;
     final int RECURRENT_DAMAGE_ID = 26265;
+
+    int randomPPoints =randomNumber.nextInt(7)+15;
+    int randomAbs =randomNumber.nextInt(500)+250;
+
     int hpXp;
     int Xp;
     int initX;
@@ -56,12 +64,12 @@ public class NMZ extends PollingScript<ClientContext> {
 
     int hp = ctx.skills.level(Constants.SKILLS_HITPOINTS);
     Component prayerPoints = ctx.widgets.component(160,15);
-    Component LogoutIcon = ctx.widgets.component(161,45);
+    Component LogoutIcon = ctx.widgets.component(161,41);
     Component LogoutButton = ctx.widgets.component(182,12);
     Component abs = ctx.widgets.component(202,3,5);
-    Component prayerIcon = ctx.widgets.component(161,56);
+    Component prayerIcon = ctx.widgets.component(161,59);
     Component activatePrayer = ctx.widgets.component(541,19,0);
-    Component inventoryIcon = ctx.widgets.component(161,54);
+    Component inventoryIcon = ctx.widgets.component(161,57);
     Component boostRange = ctx.widgets.component(320,4,3);
     Component basicRange = ctx.widgets.component(320,4,4);
     Component specialValid = ctx.widgets.component(160,30);
@@ -99,7 +107,6 @@ public class NMZ extends PollingScript<ClientContext> {
 
     Tile outSide = new Tile(2608,3115,0);
     Tile middle;
-    java.util.Random randomNumber = new java.util.Random();
 
     public void start(){
         initX=ctx.players.local().tile().x();
@@ -128,6 +135,7 @@ public class NMZ extends PollingScript<ClientContext> {
         switch(state){
             case PRAYER:
                 //System.out.println("state is:" +state);
+                inventoryIcon.click();
                 if(restore1.valid())
                     restore1.interact("Drink");
                 else if(restore2.valid())
@@ -138,6 +146,7 @@ public class NMZ extends PollingScript<ClientContext> {
                     restore4.interact("Drink");
                 else
                     System.out.println("out of restores.");
+                randomPPoints =randomNumber.nextInt(7)+15;
                 break;
 
             case HEAL:
@@ -152,6 +161,7 @@ public class NMZ extends PollingScript<ClientContext> {
                     abs4.interact("Drink");
                 else
                     System.out.println("out of abs.");
+                randomAbs =randomNumber.nextInt(500)+250;
                 break;
 
             case ORB:
@@ -241,24 +251,12 @@ public class NMZ extends PollingScript<ClientContext> {
             case FIGHT:
                 //System.out.println("state is:"+state);
 
-             /*  if(firstSpecial&&specialValid.visible()&&ctx.combat.specialPercentage()==100)
-                {
-                    System.out.println("here");
-                    specialActive.click();
-                    Condition.sleep(org.powerbot.script.Random.nextInt(2000, 3000));
-                    if(!ctx.combat.specialAttack()&&ctx.combat.specialPercentage()!=100) {
-                        specialCost = 100 - ctx.combat.specialPercentage();
-                        firstSpecial = false;
-                        System.out.println("got the special cost! and it is:"+specialCost);
-                    }
-                }
-*/
-                if(ctx.prayer.prayerPoints()>0){
-                ctx.prayer.quickPrayer(true);
-                Condition.sleep(org.powerbot.script.Random.nextInt(100, 250));
-                ctx.prayer.quickPrayer(false);
-
-                }
+                //Pray flick
+//                if(ctx.prayer.prayerPoints()>0&&!gotPrayer()){
+//                    ctx.prayer.quickPrayer(true);
+//                    Condition.sleep(org.powerbot.script.Random.nextInt(100, 250));
+//                    ctx.prayer.quickPrayer(false);
+//                }
 
                 while(specialValid.visible()&&specialCost<=toInt(specialprecent)){
                     if(ctx.movement.distance(outSide)==1)
@@ -283,18 +281,13 @@ public class NMZ extends PollingScript<ClientContext> {
 
     private State getState() {
         updatePotions();
-        if((ctx.skills.experience(Constants.SKILLS_STRENGTH)-Xp)>x5){
-            x5 +=5000;
-            System.out.println("milestone of x5:"+x5);
-        }
-
         if (ctx.movement.distance(outSide)==1)
             return State.LOGOUT;
-        else if(toInt(abs)<300 && gotAbs())
+        else if(gotAbs() && toInt(abs)<randomAbs)
             return State.HEAL;
-        else if(toInt(prayerPoints)<15&&gotPrayer())
+        else if(toInt(prayerPoints)<randomPPoints&&gotPrayer())
             return State.PRAYER;
-        else if(toInt(abs)<10&&flag)
+        else if(flag&&toInt(abs)<randomPPoints)
             return State.TURN_PRAYER;
         else if(gotOrb())
             return State.ORB;
@@ -400,7 +393,8 @@ public class NMZ extends PollingScript<ClientContext> {
 
     public boolean rotateToOrb(GameObject orb){
         ctx.movement.step(orb);
-        ctx.camera.turnTo(orb);
+        if(!orb.inViewport())
+            ctx.camera.turnTo(orb);
         return orb.interact(false,"Activate");
     }
 

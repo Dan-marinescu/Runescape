@@ -35,6 +35,7 @@ public class BuyOres extends PollingScript<ClientContext> implements PaintListen
     Npc hendor = ctx.npcs.select().name("Hendor").nearest().poll();
     final Component closeWindow = ctx.widgets.component(300,1,3);
     final Component worldSwitcher = ctx.widgets.component(182,7);
+    final Component logoutIcon = ctx.widgets.component(161,47);
 
     public void start(){
 
@@ -49,19 +50,15 @@ public class BuyOres extends PollingScript<ClientContext> implements PaintListen
 
         switch(state){
             case BUY:
-                System.out.println("a");
                 if(!ctx.widgets.component(300,1).valid()) {
                     hendor = ctx.npcs.select().name("Hendor").nearest().poll();
-                    System.out.println("b");
                     if (!hendor.inViewport()) {
-                        System.out.println("c");
                         ctx.camera.turnTo(hendor);
                         ctx.movement.step(hendor);
                     }
                     hendor.interact(false, "Trade");
                     Condition.wait(new Callable<Boolean>() {
                         public Boolean call() throws Exception {
-                            System.out.println("d");
                             System.out.println("waiting for trade window");
                             return ctx.widgets.component(300, 1).valid();
                         }
@@ -69,9 +66,9 @@ public class BuyOres extends PollingScript<ClientContext> implements PaintListen
                 }
                 else{
 
-                    if(ctx.widgets.component(300,16,3).itemStackSize()<500){
-                        System.out.println("e");
+                    if(ctx.widgets.component(300,16,3).itemStackSize()<250){
                         closeWindow.click();
+                        logoutIcon.click();
                         if (ctx.widgets.component(182, 7).valid())
                             worldSwitcher.click();
                         ctx.worlds.select().types(World.Type.FREE).joinable().shuffle().peek().hop();
@@ -79,7 +76,6 @@ public class BuyOres extends PollingScript<ClientContext> implements PaintListen
                         break;
                     }
                     else{
-                        System.out.println("f");
                         if(ctx.widgets.component(300,16,3).interact(false,"Buy 50"))
                             totalRocks+= 27;
                         closeWindow.click();
